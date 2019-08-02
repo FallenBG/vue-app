@@ -2,12 +2,17 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-8">
-                <div class="card" v-for="skill in skills">
-                    <div class="card-header">Example Component</div>
+                <div class="card" v-for="project in projects">
+                    <div class="card-header">{{ project.name }}</div>
 
                     <div class="card-body">
-                        {{ skill }}
+                        {{ project.description }}
                     </div>
+                    <!--<div class="card-header"><slot name="title"></slot></div>-->
+
+                    <!--<div class="card-body">-->
+                        <!--<slot name="description"></slot>-->
+                    <!--</div>-->
                 </div>
             </div>
         </div>
@@ -16,15 +21,19 @@
 
 <script>
     export default {
-        data() {
-            return {
-                skills: []
-            }
+        // data() {
+        //     return {
+        //         name: '',
+        //         description: ''
+        //     }
+        // },
+        props: {
+            projects: {},
         },
         mounted() {
             console.log('Component mounted.')
 
-            axios.get('/skills').then(response => this.skills = response.data);
+            // axios.get('/skills').then(response => this.skills = response.data);
             // console.log(axios.response);
         }
     }

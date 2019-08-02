@@ -1854,19 +1854,24 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
-  data: function data() {
-    return {
-      skills: []
-    };
+  // data() {
+  //     return {
+  //         name: '',
+  //         description: ''
+  //     }
+  // },
+  props: {
+    projects: {}
   },
   mounted: function mounted() {
-    var _this = this;
-
-    console.log('Component mounted.');
-    axios.get('/skills').then(function (response) {
-      return _this.skills = response.data;
-    }); // console.log(axios.response);
+    console.log('Component mounted.'); // axios.get('/skills').then(response => this.skills = response.data);
+    // console.log(axios.response);
   }
 });
 
@@ -37171,15 +37176,17 @@ var render = function() {
       _c(
         "div",
         { staticClass: "col-md-8" },
-        _vm._l(_vm.skills, function(skill) {
+        _vm._l(_vm.projects, function(project) {
           return _c("div", { staticClass: "card" }, [
             _c("div", { staticClass: "card-header" }, [
-              _vm._v("Example Component")
+              _vm._v(_vm._s(project.name))
             ]),
             _vm._v(" "),
             _c("div", { staticClass: "card-body" }, [
               _vm._v(
-                "\n                    " + _vm._s(skill) + "\n                "
+                "\n                    " +
+                  _vm._s(project.description) +
+                  "\n                "
               )
             ])
           ])
@@ -49339,6 +49346,12 @@ module.exports = function(module) {
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
 /**
  * First we will load all of this project's JavaScript dependencies which
  * includes Vue and other libraries. It is a great starting point when
@@ -49358,16 +49371,85 @@ window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.common.
 // files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default));
 
 Vue.component('example-component', __webpack_require__(/*! ./components/ExampleComponent.vue */ "./resources/js/components/ExampleComponent.vue")["default"]);
+
+var Errors =
+/*#__PURE__*/
+function () {
+  function Errors() {
+    _classCallCheck(this, Errors);
+
+    this.errors = {};
+  }
+
+  _createClass(Errors, [{
+    key: "get",
+    value: function get(field) {
+      if (this.errors[field]) {
+        return this.errors[field][0];
+      }
+    }
+  }, {
+    key: "record",
+    value: function record(errors) {
+      this.errors = errors;
+    }
+  }, {
+    key: "clear",
+    value: function clear(field) {
+      if (this.errors[field]) {
+        delete this.errors[field];
+      }
+    }
+  }, {
+    key: "has",
+    value: function has(field) {
+      return this.errors.hasOwnProperty(field);
+    }
+  }, {
+    key: "any",
+    value: function any() {
+      return Object.keys(this.errors).length > 0;
+    }
+  }]);
+
+  return Errors;
+}();
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
+
 var app = new Vue({
   el: '#app',
+  data: function data() {
+    return {
+      name: '',
+      description: '',
+      errors: new Errors()
+    };
+  },
   mounted: function mounted() {
     console.log('app.jss');
+  },
+  methods: {
+    onSubmit: function onSubmit() {
+      var _this = this;
+
+      // console.log(this.$data);
+      axios.post('/projects', {
+        name: this.name,
+        description: this.description
+      }).then(this.onSuccess)["catch"](function (error) {
+        return _this.errors.record(error.response.data.errors);
+      });
+    },
+    onSuccess: function onSuccess(response) {
+      alert('kur');
+      this.name = '';
+      this.description = '';
+    }
   }
 });
 

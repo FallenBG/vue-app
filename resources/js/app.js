@@ -21,6 +21,32 @@ window.Vue = require('vue');
 
 Vue.component('example-component', require('./components/ExampleComponent.vue').default);
 
+
+class Errors {
+    constructor() {
+        this.errors = {};
+    }
+    get(field) {
+        if (this.errors[field]) {
+            return this.errors[field][0];
+        }
+    }
+    record (errors) {
+        this.errors = errors;
+    }
+    clear (field) {
+        if (this.errors[field]) {
+            delete this.errors[field];
+        }
+    }
+    has (field) {
+        return this.errors.hasOwnProperty(field);
+    }
+    any () {
+        return Object.keys(this.errors).length > 0;
+    }
+}
+
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application
@@ -29,8 +55,32 @@ Vue.component('example-component', require('./components/ExampleComponent.vue').
 
 const app = new Vue({
     el: '#app',
-
+    data() {
+        return {
+            name: '',
+            description: '',
+            errors: new Errors()
+        }
+    },
     mounted() {
         console.log('app.jss');
+    },
+    methods: {
+        onSubmit() {
+            // console.log(this.$data);
+            axios.post('/projects', {
+                name: this.name,
+                description: this.description
+            })
+                .then(this.onSuccess)
+                .catch(error => this.errors.record(error.response.data.errors));
+        },
+
+        onSuccess(response) {
+            alert('kur');
+
+            this.name = '';
+            this.description = '';
+        }
     }
 });

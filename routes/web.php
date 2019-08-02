@@ -19,3 +19,14 @@ Route::get('/', function () {
 Route::get('skills', function () {
     return ['asd', 'zxc', 'qwe', '123'];
 });
+
+//Route::get('projects', function () {
+//    return ['asd', 'zxc', 'qwe', '123'];
+//});
+
+
+Route::get('projects', 'ProjectsController@index');
+//Route::get('/projects', 'ProjectsController@index');
+Route::get('projects/create', 'ProjectsController@create');
+Route::get('projects/{project}', 'ProjectsController@show');
+Route::post('projects', 'ProjectsController@store');
