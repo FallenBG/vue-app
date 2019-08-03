@@ -64,30 +64,58 @@ class Form {
     }
 
     data() {
-        let data = Object.assign({}, this);
-        delete data.originalFields;
-        delete data.errors;
+        // let data = Object.assign({}, this);
+        // delete data.originalFields;
+        // delete data.errors;
 
+        let data = {};
+        for (let property in this.originalFields) {
+            data[property] = this[property];
+        }
         return data;
+
+    }
+
+    post(url) {
+        return this.submit('post', url)
+            .then(data => alert('working on it'))
+            .catch(error => console.log(error));;
+    }
+    delete(url) {
+        return this.submit('delete', url);
     }
 
     submit (requestType, url) {
-        axios[requestType](url, this.data())
-            .then(this.onSuccess.bind(this))
-            .catch(this.onFail.bind(this))
+        return new Promise((resolve, reject) => {
+            axios[requestType](url, this.data())
+                .then(response => {
+                    this.onSuccess(response.data);
+
+                    resolve(response.data);
+                })
+                .catch(error => {
+                    this.onFail(error.response.data);
+
+                    reject(error.response.data);
+                })
+                // .catch(this.onFail.bind(this))
             // .catch(error => this.errors.record(error.response.data.errors));
+        });
+
+
+
     }
 
-    onSuccess(response) {
-        alert(response.data.message);
+    onSuccess(data) {
+        alert(data.message);
         // this.errors.clear();
         this.reset();
     }
 
-    onFail(error) {
+    onFail(errors) {
         alert('fail');
 
-        this.errors.record(error.response.data.errors)
+        this.errors.record(errors.errors)
     }
 }
 /**
@@ -98,6 +126,7 @@ class Form {
 
 const app = new Vue({
     el: '#app',
+
     data() {
         return {
             form: new Form({
@@ -107,26 +136,17 @@ const app = new Vue({
         }
     },
 
-    // data: {
-    //     form: new Form({
-    //         name: '',
-    //         description: '',
-    //     })
-    // },
     mounted() {
         console.log('app.jss');
     },
+
     methods: {
         onSubmit() {
             // console.log(this.$data);
-            this.form.submit('post', '/projects');
-            // axios.post('/projects', {
-            //     name: this.form.name,
-            //     description: this.form.description
-            // })
-            //     .then(this.onSuccess)
-            //     .catch(error => this.form.errors.record(error.response.data.errors));
-        },
-
+            // this.form.submit('post', '/projects')
+            //     .then(data => alert('working on it'))
+            //     .catch(error => console.log(error));
+            this.form.post('/projects');
+        }
     }
 });

@@ -49440,28 +49440,62 @@ function () {
   }, {
     key: "data",
     value: function data() {
-      var data = Object.assign({}, this);
-      delete data.originalFields;
-      delete data.errors;
+      // let data = Object.assign({}, this);
+      // delete data.originalFields;
+      // delete data.errors;
+      var data = {};
+
+      for (var property in this.originalFields) {
+        data[property] = this[property];
+      }
+
       return data;
+    }
+  }, {
+    key: "post",
+    value: function post(url) {
+      return this.submit('post', url).then(function (data) {
+        return alert('working on it');
+      })["catch"](function (error) {
+        return console.log(error);
+      });
+      ;
+    }
+  }, {
+    key: "delete",
+    value: function _delete(url) {
+      return this.submit('delete', url);
     }
   }, {
     key: "submit",
     value: function submit(requestType, url) {
-      axios[requestType](url, this.data()).then(this.onSuccess.bind(this))["catch"](this.onFail.bind(this)); // .catch(error => this.errors.record(error.response.data.errors));
+      var _this = this;
+
+      return new Promise(function (resolve, reject) {
+        axios[requestType](url, _this.data()).then(function (response) {
+          _this.onSuccess(response.data);
+
+          resolve(response.data);
+        })["catch"](function (error) {
+          _this.onFail(error.response.data);
+
+          reject(error.response.data);
+        }); // .catch(this.onFail.bind(this))
+        // .catch(error => this.errors.record(error.response.data.errors));
+      });
     }
   }, {
     key: "onSuccess",
-    value: function onSuccess(response) {
-      alert(response.data.message); // this.errors.clear();
+    value: function onSuccess(data) {
+      alert(data.message); // this.errors.clear();
 
       this.reset();
     }
   }, {
     key: "onFail",
-    value: function onFail(error) {
+    value: function onFail(errors) {
       alert('fail');
-      this.errors.record(error.response.data.errors);
+      this.errors.record(errors.errors);
     }
   }]);
 
@@ -49484,24 +49518,16 @@ var app = new Vue({
       })
     };
   },
-  // data: {
-  //     form: new Form({
-  //         name: '',
-  //         description: '',
-  //     })
-  // },
   mounted: function mounted() {
     console.log('app.jss');
   },
   methods: {
     onSubmit: function onSubmit() {
       // console.log(this.$data);
-      this.form.submit('post', '/projects'); // axios.post('/projects', {
-      //     name: this.form.name,
-      //     description: this.form.description
-      // })
-      //     .then(this.onSuccess)
-      //     .catch(error => this.form.errors.record(error.response.data.errors));
+      // this.form.submit('post', '/projects')
+      //     .then(data => alert('working on it'))
+      //     .catch(error => console.log(error));
+      this.form.post('/projects');
     }
   }
 });
