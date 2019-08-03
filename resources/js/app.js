@@ -47,6 +47,49 @@ class Errors {
     }
 }
 
+
+class Form {
+    constructor (fields) {
+        this.originalFields = fields;
+        for (let field in fields) {
+            this[field] = fields[field];
+        }
+
+        this.errors = new Errors();
+    }
+    reset () {
+        for (let field in this.originalFields) {
+            this[field] = '';
+        }
+    }
+
+    data() {
+        let data = Object.assign({}, this);
+        delete data.originalFields;
+        delete data.errors;
+
+        return data;
+    }
+
+    submit (requestType, url) {
+        axios[requestType](url, this.data())
+            .then(this.onSuccess.bind(this))
+            .catch(this.onFail.bind(this))
+            // .catch(error => this.errors.record(error.response.data.errors));
+    }
+
+    onSuccess(response) {
+        alert(response.data.message);
+        // this.errors.clear();
+        this.reset();
+    }
+
+    onFail(error) {
+        alert('fail');
+
+        this.errors.record(error.response.data.errors)
+    }
+}
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application
@@ -57,30 +100,33 @@ const app = new Vue({
     el: '#app',
     data() {
         return {
-            name: '',
-            description: '',
-            errors: new Errors()
+            form: new Form({
+                name: '',
+                description: '',
+            })
         }
     },
+
+    // data: {
+    //     form: new Form({
+    //         name: '',
+    //         description: '',
+    //     })
+    // },
     mounted() {
         console.log('app.jss');
     },
     methods: {
         onSubmit() {
             // console.log(this.$data);
-            axios.post('/projects', {
-                name: this.name,
-                description: this.description
-            })
-                .then(this.onSuccess)
-                .catch(error => this.errors.record(error.response.data.errors));
+            this.form.submit('post', '/projects');
+            // axios.post('/projects', {
+            //     name: this.form.name,
+            //     description: this.form.description
+            // })
+            //     .then(this.onSuccess)
+            //     .catch(error => this.form.errors.record(error.response.data.errors));
         },
 
-        onSuccess(response) {
-            alert('kur');
-
-            this.name = '';
-            this.description = '';
-        }
     }
 });
