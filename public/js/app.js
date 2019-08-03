@@ -49414,6 +49414,59 @@ function () {
 
   return Errors;
 }();
+
+var Form =
+/*#__PURE__*/
+function () {
+  function Form(fields) {
+    _classCallCheck(this, Form);
+
+    this.originalFields = fields;
+
+    for (var field in fields) {
+      this[field] = fields[field];
+    }
+
+    this.errors = new Errors();
+  }
+
+  _createClass(Form, [{
+    key: "reset",
+    value: function reset() {
+      for (var field in this.originalFields) {
+        this[field] = '';
+      }
+    }
+  }, {
+    key: "data",
+    value: function data() {
+      var data = Object.assign({}, this);
+      delete data.originalFields;
+      delete data.errors;
+      return data;
+    }
+  }, {
+    key: "submit",
+    value: function submit(requestType, url) {
+      axios[requestType](url, this.data()).then(this.onSuccess.bind(this))["catch"](this.onFail.bind(this)); // .catch(error => this.errors.record(error.response.data.errors));
+    }
+  }, {
+    key: "onSuccess",
+    value: function onSuccess(response) {
+      alert(response.data.message); // this.errors.clear();
+
+      this.reset();
+    }
+  }, {
+    key: "onFail",
+    value: function onFail(error) {
+      alert('fail');
+      this.errors.record(error.response.data.errors);
+    }
+  }]);
+
+  return Form;
+}();
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application
@@ -49425,30 +49478,30 @@ var app = new Vue({
   el: '#app',
   data: function data() {
     return {
-      name: '',
-      description: '',
-      errors: new Errors()
+      form: new Form({
+        name: '',
+        description: ''
+      })
     };
   },
+  // data: {
+  //     form: new Form({
+  //         name: '',
+  //         description: '',
+  //     })
+  // },
   mounted: function mounted() {
     console.log('app.jss');
   },
   methods: {
     onSubmit: function onSubmit() {
-      var _this = this;
-
       // console.log(this.$data);
-      axios.post('/projects', {
-        name: this.name,
-        description: this.description
-      }).then(this.onSuccess)["catch"](function (error) {
-        return _this.errors.record(error.response.data.errors);
-      });
-    },
-    onSuccess: function onSuccess(response) {
-      alert('kur');
-      this.name = '';
-      this.description = '';
+      this.form.submit('post', '/projects'); // axios.post('/projects', {
+      //     name: this.form.name,
+      //     description: this.form.description
+      // })
+      //     .then(this.onSuccess)
+      //     .catch(error => this.form.errors.record(error.response.data.errors));
     }
   }
 });
